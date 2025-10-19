@@ -3,7 +3,6 @@ package com.backEnd.genomebank.auth;
 import com.backEnd.genomebank.dto.RegisterRequest;
 import com.backEnd.genomebank.entities.Rol;
 import com.backEnd.genomebank.entities.User;
-import com.backEnd.genomebank.repositories.*;
 import com.backEnd.genomebank.repositories.RolRepository;
 import com.backEnd.genomebank.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +64,7 @@ public class AuthController {
         authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
         var user = usuarioRepo.findByUsername(username).orElseThrow();
-        var roles = user.getRoles().stream().map(Rol::getNombre).toList();
+        var roles = user.getRoles().stream().map(Rol::getName).toList();
         String token = jwt.generate(user.getUsername(), roles);
 
         return Map.of(
@@ -97,22 +97,24 @@ public class AuthController {
         // Manejo correcto de roles para evitar ConcurrentModificationException
         Set<Rol> rolEntities = new HashSet<>();
         for (String roleName : roleNames) {
-            Rol rol = rolRepo.findByNombre(roleName).orElseGet(() -> {
+            Rol rol = rolRepo.findByName(roleName).orElseGet(() -> {
                 Rol newRol = new Rol();
-                newRol.setNombre(roleName);
+                newRol.setName(roleName);
                 return rolRepo.save(newRol);
             });
             rolEntities.add(rol);
         }
 
         User user = new User();
-        user.setName(req.getUsername());
+        user.setUsername(req.getUsername());
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setRoles(rolEntities);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setEmail(req.getEmail());
 
         usuarioRepo.save(user);
 
-        List<String> roles = rolEntities.stream().map(Rol::getNombre).toList();
+        List<String> roles = rolEntities.stream().map(Rol::getName).toList();
         String token = jwt.generate(user.getUsername(), roles);
 
         return Map.of(

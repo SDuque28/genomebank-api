@@ -20,12 +20,12 @@ public class User implements UserDetails {
     private Long id;
 
     @Column(nullable = false, unique = true, length = 100)
-    private String name;
+    private String username;
 
     @Column(unique = true, nullable = false, length = 100)
     private String email;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String password;
 
     @Column(name = "created_at", updatable = false, insertable = false)
@@ -46,13 +46,8 @@ public class User implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // Transforma cada rol en una autoridad con prefijo "ROLE_"
         return roles.stream()
-                .map(r -> (GrantedAuthority) () -> "ROLE_" + r.getNombre())
+                .map(r -> (GrantedAuthority) () -> "ROLE_" + r.getName())
                 .collect(Collectors.toSet());
-    }
-
-    @Override
-    public String getUsername() {
-        return name;
     }
 
     // Métodos requeridos por UserDetails para el control de la cuenta

@@ -10,4 +10,5 @@ public class RegisterRequest {
     private String password;
     // Optional list of role names, e.g. ["USER","ADMIN"]
     private List<String> roles;
+    private String email;
 }
