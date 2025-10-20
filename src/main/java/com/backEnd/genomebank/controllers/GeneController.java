@@ -18,7 +18,14 @@ import java.util.Map;
 public class GeneController {
 
     private final IGeneService geneService;
-
+    /**
+     * Obtener todos los Genes, con opciones de filtrado.
+     * @param chromosomeId (opcional) ID del cromosoma para filtrar.
+     * @param start (opcional) Posición inicial para filtrar por rango.
+     * @param end (opcional) Posición final para filtrar por rango.
+     * @param symbol (opcional) Símbolo del gen para filtrar.
+     * @return Lista de GeneOutDTO.
+     */
     @GetMapping
     public ResponseEntity<List<GeneOutDTO>> obtenerGenes(
             @RequestParam(required = false) Long chromosomeId,
@@ -26,39 +33,47 @@ public class GeneController {
             @RequestParam(required = false) Integer end,
             @RequestParam(required = false) String symbol) {
 
-        // Filtrar por rango en cromosoma
         if (chromosomeId != null && start != null && end != null) {
             return ResponseEntity.ok(geneService.obtenerGenesPorRango(chromosomeId, start, end));
         }
-
-        // Filtrar por cromosoma
         if (chromosomeId != null) {
             return ResponseEntity.ok(geneService.obtenerGenesPorChromosome(chromosomeId));
         }
-
-        // Filtrar por símbolo
         if (symbol != null) {
             return ResponseEntity.ok(geneService.obtenerGenesPorSymbol(symbol));
         }
-
-        // Todos los genes
         return ResponseEntity.ok(geneService.obtenerTodosGenes());
     }
-
+    /**
+     * Obtener un Gene por su ID.
+     * @param id ID del Gene.
+     * @return GeneOutDTO si se encuentra, o 404 si no existe.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<GeneOutDTO> obtenerGenePorId(@PathVariable Long id) {
         return geneService.obtenerGenePorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
+    /**
+     * Crear un nuevo Gene.
+     * Solo los usuarios con rol ADMIN pueden realizar esta operación.
+     * @param geneInDTO Datos de entrada para crear el Gene.
+     * @return GeneOutDTO creado con estado 201.
+     */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GeneOutDTO> crearGene(@Valid @RequestBody GeneInDTO geneInDTO) {
         GeneOutDTO created = geneService.crearGene(geneInDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
-
+    /**
+     * Actualizar un Gene existente.
+     * Solo los usuarios con rol ADMIN pueden realizar esta operación.
+     * @param id ID del Gene a actualizar.
+     * @param geneUpdateDTO Datos de actualización.
+     * @return GeneOutDTO actualizada, o 404 si no se encuentra el Gene.
+     */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GeneOutDTO> actualizarGene(
@@ -68,7 +83,12 @@ public class GeneController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
+    /**
+     * Eliminar un Gene por su ID.
+     * Solo los usuarios con rol ADMIN pueden realizar esta operación.
+     * @param id ID del Gene a eliminar.
+     * @return Respuesta con estado 204 si se elimina, o 404 si no se encuentra.
+     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminarGene(@PathVariable Long id) {
@@ -77,16 +97,24 @@ public class GeneController {
         }
         return ResponseEntity.notFound().build();
     }
-
-    // ===== SEQUENCE ENDPOINTS =====
-
+    /**
+     * Obtener la secuencia de un Gene por su ID.
+     * @param id ID del Gene.
+     * @return Mapa con la secuencia del gen, o 404 si no se encuentra.
+     */
     @GetMapping("/{id}/sequence")
     public ResponseEntity<Map<String, String>> obtenerSecuenciaGene(@PathVariable Long id) {
         return geneService.obtenerSecuenciaGene(id)
                 .map(sequence -> ResponseEntity.ok(Map.of("sequence", sequence)))
                 .orElse(ResponseEntity.notFound().build());
     }
-
+    /**
+     * Actualizar la secuencia de un Gene por su ID.
+     * Solo los usuarios con rol ADMIN pueden realizar esta operación.
+     * @param id ID del Gene.
+     * @param body Mapa que contiene la nueva secuencia bajo la clave "sequence".
+     * @return GeneOutDTO actualizado, o 404 si no se encuentra el Gene.
+     */
     @PutMapping("/{id}/sequence")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GeneOutDTO> actualizarSecuenciaGene(

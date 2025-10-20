@@ -12,9 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +22,11 @@ public class GeneServiceImpl implements IGeneService {
 
     private final GeneRepository geneRepository;
     private final ChromosomeRepository chromosomeRepository;
-
+    /**
+     * Crear un nuevo Gene asociado a un Chromosome existente.
+     * @param geneInDTO Datos de entrada para crear el Gene.
+     * @return Datos de salida del Gene creado.
+     */
     @Override
     @Transactional
     public GeneOutDTO crearGene(GeneInDTO geneInDTO) {
@@ -47,50 +51,77 @@ public class GeneServiceImpl implements IGeneService {
         gene.setEndPosition(geneInDTO.getEndPosition());
         gene.setStrand(geneInDTO.getStrand().charAt(0));
         gene.setSequence(geneInDTO.getSequence());
+        gene.setCreatedAt(LocalDateTime.now());
 
         Gene savedGene = geneRepository.save(gene);
         return convertToOutDTO(savedGene);
     }
-
+    /**
+     * Obtener todos los Genes.
+     * @return Lista de datos de salida de todos los Genes.
+     */
     @Override
     @Transactional(readOnly = true)
     public List<GeneOutDTO> obtenerTodosGenes() {
         return geneRepository.findAll().stream()
                 .map(this::convertToOutDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
-
+    /**
+     * Obtener Genes por ID de Chromosome.
+     * @param chromosomeId ID del Chromosome.
+     * @return Lista de datos de salida de los Genes asociados al Chromosome.
+     */
     @Override
     @Transactional(readOnly = true)
     public List<GeneOutDTO> obtenerGenesPorChromosome(Long chromosomeId) {
         return geneRepository.findByChromosomeId(chromosomeId).stream()
                 .map(this::convertToOutDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
-
+    /**
+     * Obtener Genes por símbolo (búsqueda parcial, case insensitive).
+     * @param symbol Símbolo o parte del símbolo del Gene.
+     * @return Lista de datos de salida de los Genes que coinciden con el símbolo.
+     */
     @Override
     @Transactional(readOnly = true)
     public List<GeneOutDTO> obtenerGenesPorSymbol(String symbol) {
         return geneRepository.findBySymbolContainingIgnoreCase(symbol).stream()
                 .map(this::convertToOutDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
-
+    /**
+     * Obtener Genes en un rango específico dentro de un Chromosome.
+     * @param chromosomeId ID del Chromosome.
+     * @param start Posición inicial del rango.
+     * @param end Posición final del rango.
+     * @return Lista de datos de salida de los Genes dentro del rango especificado.
+     */
     @Override
     @Transactional(readOnly = true)
     public List<GeneOutDTO> obtenerGenesPorRango(Long chromosomeId, Integer start, Integer end) {
         return geneRepository.findGenesInRange(chromosomeId, start, end).stream()
                 .map(this::convertToOutDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
-
+    /**
+     * Obtener un Gene por su ID.
+     * @param id ID del Gene.
+     * @return Datos de salida del Gene si se encuentra, opcionalmente.
+     */
     @Override
     @Transactional(readOnly = true)
     public Optional<GeneOutDTO> obtenerGenePorId(Long id) {
         return geneRepository.findById(id)
                 .map(this::convertToOutDTO);
     }
-
+    /**
+     * Actualizar un Gene existente.
+     * @param id ID del Gene a actualizar.
+     * @param geneUpdateDTO Datos de actualización del Gene.
+     * @return Datos de salida del Gene actualizado si se encuentra, opcionalmente.
+     */
     @Override
     @Transactional
     public Optional<GeneOutDTO> actualizarGene(Long id, GeneUpdateDTO geneUpdateDTO) {
@@ -117,7 +148,11 @@ public class GeneServiceImpl implements IGeneService {
             return convertToOutDTO(updatedGene);
         });
     }
-
+    /**
+     * Eliminar un Gene por su ID.
+     * @param id ID del Gene a eliminar.
+     * @return true si el Gene fue eliminado, false si no se encontró.
+     */
     @Override
     @Transactional
     public boolean eliminarGene(Long id) {
@@ -127,14 +162,23 @@ public class GeneServiceImpl implements IGeneService {
         }
         return false;
     }
-
+    /**
+     * Obtener la secuencia de un Gene por su ID.
+     * @param geneId ID del Gene.
+     * @return Secuencia del Gene si se encuentra, opcionalmente.
+     */
     @Override
     @Transactional(readOnly = true)
     public Optional<String> obtenerSecuenciaGene(Long geneId) {
         return geneRepository.findById(geneId)
                 .map(Gene::getSequence);
     }
-
+    /**
+     * Actualizar la secuencia de un Gene.
+     * @param geneId ID del Gene.
+     * @param sequence Nueva secuencia para el Gene.
+     * @return Datos de salida del Gene actualizado si se encuentra, opcionalmente.
+     */
     @Override
     @Transactional
     public Optional<GeneOutDTO> actualizarSecuenciaGene(Long geneId, String sequence) {
@@ -149,7 +193,11 @@ public class GeneServiceImpl implements IGeneService {
             return convertToOutDTO(updatedGene);
         });
     }
-
+    /**
+     * Convertir una entidad Gene a GeneOutDTO.
+     * @param gene Entidad Gene.
+     * @return Datos de salida del Gene.
+     */
     private GeneOutDTO convertToOutDTO(Gene gene) {
         GeneOutDTO dto = new GeneOutDTO();
         dto.setId(gene.getId());

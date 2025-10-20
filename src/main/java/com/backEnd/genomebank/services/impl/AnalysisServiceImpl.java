@@ -21,7 +21,13 @@ public class AnalysisServiceImpl implements IAnalysisService {
 
     private final GeneRepository geneRepository;
     private final ChromosomeRepository chromosomeRepository;
-
+    /**
+     * Obtener genes que se encuentran dentro de un rango específico en un cromosoma.
+     * @param chromosomeId ID del cromosoma.
+     * @param start Posición inicial del rango.
+     * @param end Posición final del rango.
+     * @return Lista de GeneRangeDTO que representan los genes en el rango especificado.
+     */
     @Override
     @Transactional(readOnly = true)
     public List<GeneRangeDTO> obtenerGenesPorRango(Long chromosomeId, Integer start, Integer end) {
@@ -39,7 +45,11 @@ public class AnalysisServiceImpl implements IAnalysisService {
                 .map(this::convertToRangeDTO)
                 .collect(Collectors.toList());
     }
-
+    /**
+     * Obtener estadísticas de la secuencia de un cromosoma.
+     * @param chromosomeId ID del cromosoma.
+     * @return Optional de SequenceStatsDTO con las estadísticas de la secuencia.
+     */
     @Override
     @Transactional(readOnly = true)
     public Optional<SequenceStatsDTO> obtenerEstadisticasSecuencia(Long chromosomeId) {

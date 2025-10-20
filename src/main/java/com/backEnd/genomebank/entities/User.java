@@ -50,7 +50,7 @@ public class User implements UserDetails {
                 .collect(Collectors.toSet());
     }
 
-    // Métodos requeridos por UserDetails para el control de la cuenta
+    /** Métodos de UserDetails para el estado de la cuenta **/
     @Override public boolean isAccountNonExpired() { return true; } // La cuenta nunca expira
     @Override public boolean isAccountNonLocked() { return true; } // La cuenta nunca se bloquea
     @Override public boolean isCredentialsNonExpired() { return true; } // Las credenciales nunca expiran

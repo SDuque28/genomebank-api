@@ -65,7 +65,6 @@ public class SecurityConfig {
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build(); // Construye y retorna la cadena de filtros
     }
-
     /**
      * Define el proveedor de autenticación.
      * Este proveedor usa el servicio de usuarios y el codificador de contraseñas para validar credenciales.
