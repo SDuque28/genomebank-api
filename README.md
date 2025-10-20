@@ -736,7 +736,7 @@ export JWT_EXPIRATION=60
 
 ---
 
-## 👥 Contributors
+## Contributors
 
 - **Santiago Duque Robledo** - Initial work and development
 - **Jeronimo Narvaez Montoya** - Creation of entities, repositories and some Interfaces
