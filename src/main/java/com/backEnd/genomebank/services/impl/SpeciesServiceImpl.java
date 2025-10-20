@@ -10,14 +10,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class SpeciesServiceImpl implements ISpeciesService {
 
     private final SpeciesRepository speciesRepository;
-
+    /**
+     * Crear una nueva Species.
+     * @param speciesInDTO Datos de entrada para crear la Species.
+     * @return Datos de salida de la Species creada.
+     */
     @Override
     @Transactional
     public SpeciesOutDTO crearSpecies(SpeciesInDTO speciesInDTO) {
@@ -29,22 +32,34 @@ public class SpeciesServiceImpl implements ISpeciesService {
         Species savedSpecies = speciesRepository.save(species);
         return convertToOutDTO(savedSpecies);
     }
-
+    /**
+     * Obtener todas las Species.
+     * @return Lista de todas las Species.
+     */
     @Override
     @Transactional(readOnly = true)
     public List<SpeciesOutDTO> obtenerTodasSpecies() {
         return speciesRepository.findAll().stream()
                 .map(this::convertToOutDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
-
+    /**
+     * Obtener una Species por ID.
+     * @param id ID de la Species.
+     * @return Species encontrada si existe.
+     */
     @Override
     @Transactional(readOnly = true)
     public Optional<SpeciesOutDTO> obtenerSpeciesPorId(Long id) {
         return speciesRepository.findById(id)
                 .map(this::convertToOutDTO);
     }
-
+    /**
+     * Actualizar una Species existente.
+     * @param id ID de la Species a actualizar.
+     * @param speciesUpdateDTO Datos de actualización de la Species.
+     * @return Species actualizada si existe.
+     */
     @Override
     @Transactional
     public Optional<SpeciesOutDTO> actualizarSpecies(Long id, SpeciesUpdateDTO speciesUpdateDTO) {
@@ -62,7 +77,11 @@ public class SpeciesServiceImpl implements ISpeciesService {
             return convertToOutDTO(updatedSpecies);
         });
     }
-
+    /**
+     * Eliminar una Species por ID.
+     * @param id ID de la Species a eliminar.
+     * @return true si la Species fue eliminada, false si no existe.
+     */
     @Override
     @Transactional
     public boolean eliminarSpecies(Long id) {
@@ -72,7 +91,11 @@ public class SpeciesServiceImpl implements ISpeciesService {
         }
         return false;
     }
-
+    /**
+     * Convertir una entidad Species a SpeciesOutDTO.
+     * @param species Entidad Species.
+     * @return DTO de salida SpeciesOutDTO.
+     */
     private SpeciesOutDTO convertToOutDTO(Species species) {
         SpeciesOutDTO dto = new SpeciesOutDTO();
         dto.setId(species.getId());

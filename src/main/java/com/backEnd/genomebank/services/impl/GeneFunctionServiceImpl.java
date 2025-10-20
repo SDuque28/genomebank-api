@@ -16,7 +16,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +24,13 @@ public class GeneFunctionServiceImpl implements IGeneFunctionService {
     private final GeneFunctionRepository geneFunctionRepository;
     private final GeneRepository geneRepository;
     private final FunctionRepository functionRepository;
-
+    /**
+     * Asocia una Function a un Gene con evidencia opcional.
+     * @param geneId ID del Gene.
+     * @param functionId ID de la Function.
+     * @param evidence Evidencia de la asociación (opcional).
+     * @return GeneFunctionOutDTO de la asociación creada.
+     */
     @Override
     @Transactional
     public GeneFunctionOutDTO asociarFunctionAGene(Long geneId, Long functionId, String evidence) {
@@ -56,23 +61,36 @@ public class GeneFunctionServiceImpl implements IGeneFunctionService {
         GeneFunction savedGeneFunction = geneFunctionRepository.save(geneFunction);
         return convertToOutDTO(savedGeneFunction);
     }
-
+    /**
+     * Obtiene todas las Functions asociadas a un Gene específico.
+     * @param geneId ID del Gene.
+     * @return Lista de GeneFunctionOutDTO asociados al Gene.
+     */
     @Override
     @Transactional(readOnly = true)
     public List<GeneFunctionOutDTO> obtenerFunctionsPorGene(Long geneId) {
         return geneFunctionRepository.findByGeneId(geneId).stream()
                 .map(this::convertToOutDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
-
+    /**
+     * Obtiene todos los Genes asociados a una Function específica.
+     * @param functionId ID de la Function.
+     * @return Lista de GeneFunctionOutDTO asociados a la Function.
+     */
     @Override
     @Transactional(readOnly = true)
     public List<GeneFunctionOutDTO> obtenerGenesPorFunction(Long functionId) {
         return geneFunctionRepository.findByFunctionId(functionId).stream()
                 .map(this::convertToOutDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
-
+    /**
+     * Elimina la asociación entre un Gene y una Function.
+     * @param geneId ID del Gene.
+     * @param functionId ID de la Function.
+     * @return true si la asociación fue eliminada, false si no existía.
+     */
     @Override
     @Transactional
     public boolean eliminarAsociacion(Long geneId, Long functionId) {
@@ -86,7 +104,11 @@ public class GeneFunctionServiceImpl implements IGeneFunctionService {
         }
         return false;
     }
-
+    /**
+     * Convierte una entidad GeneFunction a un DTO de salida GeneFunctionOutDTO.
+     * @param geneFunction La entidad GeneFunction a convertir.
+     * @return El DTO de salida correspondiente.
+     */
     private GeneFunctionOutDTO convertToOutDTO(GeneFunction geneFunction) {
         GeneFunctionOutDTO dto = new GeneFunctionOutDTO();
         dto.setGeneId(geneFunction.getGene().getId());
