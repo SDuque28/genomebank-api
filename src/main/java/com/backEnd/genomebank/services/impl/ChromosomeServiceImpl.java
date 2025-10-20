@@ -203,6 +203,8 @@ public class ChromosomeServiceImpl implements IChromosomeService {
         speciesDTO.setId(chromosome.getGenome().getSpecies().getId());
         speciesDTO.setScientificName(chromosome.getGenome().getSpecies().getScientificName());
         speciesDTO.setCommonName(chromosome.getGenome().getSpecies().getCommonName());
+        speciesDTO.setCreatedAt(chromosome.getGenome().getSpecies().getCreatedAt());
+        speciesDTO.setDescription(chromosome.getGenome().getSpecies().getDescription());
         genomeDTO.setSpecies(speciesDTO);
 
         dto.setGenome(genomeDTO);
